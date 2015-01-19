@@ -1,0 +1,38 @@
+{
+  "name": "node-fontdump",
+  "version": "0.1.0",
+  "description": "cache font files locally and generate a stylesheet for it",
+  "main": "index.js",
+  "dependencies": {
+    "cli": "^0.6.5",
+    "css": "^2.1.0",
+    "es6-promise": "^2.0.1",
+    "lodash": "^2.4.1",
+    "request": "^2.51.0",
+    "request-promise": "^0.3.2",
+    "sprintf": "^0.1.5"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/FarbDev/node-fontdump.git"
+  },
+  "keywords": [
+    "google",
+    "fonts",
+    "fonts",
+    "fontdump",
+    "download",
+    "cache",
+    "css"
+  ],
+  "author": "Konrad Mohrfeldt <konrad.mohrfeldt@farbdev.org> (http://konradmohrfeldt.farbdev.org)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/FarbDev/node-fontdump/issues"
+  },
+  "homepage": "https://github.com/FarbDev/node-fontdump"
+}
