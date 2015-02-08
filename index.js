@@ -1,17 +1,22 @@
 #!/usr/bin/env node
 
-var cli = require("cli");
-var fontdump = require("./src/fontdump");
+var yargs = require("yargs")
+        .alias("v", "verbose")
+        .boolean("v")
+        .count("v")
+        .alias("t", "target-directory")
+        .describe("t", "folder to save font files and css to")
+        .default("t", __dirname)
+        .alias("w", "web-directory")
+        .describe("w", "path prepended to font filenames in css src declarations")
+        .default("w", "")
+        .required(0, "please provide a font css url")
+    ;
+var argv = yargs.argv;
 
-cli.parse({
-    target: ["t", "folder to save font files and css to", null, __dirname],
-    web: ["w", "path prepended to font filenames in css src declarations"]
-});
-
-cli.main(function(args, options) {
-    fontdump.dump({
-        url: args[0],
-        target_directory: options["target"],
-        web_directory: options["web"]
     });
+require("./src/fontdump").dump({
+    url: argv._[0],
+    target_directory: argv.targetDirectory,
+    web_directory: argv.webDirectory
 });
