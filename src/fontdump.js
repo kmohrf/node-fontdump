@@ -6,6 +6,8 @@ var _ = require("lodash");
 var sprintf = require("sprintf");
 var path = require("path");
 var fs = require("fs");
+var logger = require("./log").get_logger({ module: "fontdump" });
+
 
 var FontSource = function(font, source, extension, format) {
     this.font = font;
@@ -129,10 +131,20 @@ var FontLoader = function(endpoint, target_directory) {
     this.target_directory = target_directory;
 
     this._create_request = function(endpoint, ua) {
-        return rp({
+        request = rp({
             url: endpoint,
             headers: { "User-Agent": ua }
         }).promise();
+
+        request.then(function() {
+            // on success
+            logger.debug(sprintf("successfully downloaded '%s' with ua '%s'", endpoint, ua));
+        }, function() {
+            // on error
+            logger.error(sprintf("error while downloading '%s' with ua '%s'", endpoint, ua));
+        });
+
+        return request;
     };
 
     this._load_stylesheets = function() {
@@ -156,6 +168,8 @@ var FontLoader = function(endpoint, target_directory) {
             var family = declarations["font-family"]["value"];
             family = family.indexOf("'") === 0 ? family.slice(1, -1) : family;
 
+            logger.debug(sprintf("adding font %s with weight %s and style %s", family, weight, style));
+
             collection
                 .with_font_family(family)
                 .with_font(weight, style)
@@ -164,6 +178,7 @@ var FontLoader = function(endpoint, target_directory) {
     };
 
     this._parse_stylesheets = function(stylesheets) {
+        logger.info("parsing stylesheets");
         return new Promise((function(resolve, reject) {
             var collection = new FontFamilyCollection();
             stylesheets.forEach(this._parse_stylesheet.bind(this, collection));
@@ -189,12 +204,15 @@ var FontLoader = function(endpoint, target_directory) {
     };
 
     this._sync_fonts = function(collection) {
+        logger.info("syncing fonts");
         return collection
             .sync_fonts(this._sync_font.bind(this))
             .then(function() {
                 return new Promise(function(resolve) {
                     resolve(collection)
                 });
+            }, function() {
+                logger.error("could not sync font");
             });
     };
 };
@@ -273,10 +291,17 @@ FontFaceRenderer = function(endpoint) {
         this._add_declaration(rule.declarations, "font-style", font.style);
         this._add_source_set(rule.declarations, font);
 
+        logger.debug(sprintf(
+            "adding font-face rule for font-family %s with weight %s and style %s",
+            font.family.name, font.weight, font.style
+        ));
+
         ruleset.push(rule);
     };
 
     this._build_ast = function(collection) {
+        logger.info("building ast");
+
         var ast = {
             type: "stylesheet",
             stylesheet: {
@@ -292,6 +317,8 @@ FontFaceRenderer = function(endpoint) {
 
 FontFaceRenderer.prototype = {
     render: function(target_directory, collection) {
+        logger.info("rendering font-faces");
+
         var ast = this._build_ast(collection);
         fs.writeFile(
             path.join(target_directory, "fonts.css"),
@@ -313,6 +340,11 @@ module.exports = {
         var loader = new FontLoader(config.url, config.target_directory);
         var renderer = new FontFaceRenderer(config.web_directory || "");
 
-        loader.request_all().then(renderer.render.bind(renderer, config.target_directory));
+        loader.request_all().then(
+            renderer.render.bind(renderer, config.target_directory),
+            function() {
+                logger.error("could not download fonts");
+            }
+        );
     }
 };
