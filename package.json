@@ -2,7 +2,7 @@
   "name": "node-fontdump",
   "version": "0.2.0",
   "description": "cache font files locally and generate a stylesheet for it",
-  "main": "index.js",
+  "main": "module.js",
   "bin": { "fontdump": "./fontdump-cli.js" },
   "dependencies": {
     "css": "^2.1.0",
