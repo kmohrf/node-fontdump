@@ -316,14 +316,10 @@ FontFaceRenderer = function(endpoint) {
 };
 
 FontFaceRenderer.prototype = {
-    render: function(target_directory, collection) {
+    render: function(collection) {
         logger.info("rendering font-faces");
-
         var ast = this._build_ast(collection);
-        fs.writeFile(
-            path.join(target_directory, "fonts.css"),
-            css.stringify(ast)
-        );
+        return css.stringify(ast);
     }
 };
 
@@ -337,14 +333,29 @@ module.exports = {
             throw new Error("target_directory is mandatory");
         }
 
+        if(!config.hasOwnProperty("css_file")) {
+            config.css_file = "fonts.css";
+        }
+
         var loader = new FontLoader(config.url, config.target_directory);
         var renderer = new FontFaceRenderer(config.web_directory || "");
 
-        loader.request_all().then(
-            renderer.render.bind(renderer, config.target_directory),
-            function() {
-                logger.error("could not download fonts");
-            }
-        );
+        return new Promise(function(resolve, reject) {
+            loader.request_all().then(
+                function(collection) {
+                    var css = renderer.render(collection);
+                    fs.writeFileSync(path.join(config.target_directory, config.css_file), css);
+                    resolve({
+                        css: css,
+                        fonts: collection
+                    });
+                },
+                function() {
+                    logger.error("could not download fonts");
+                    reject();
+                }
+            );
+        });
+
     }
 };
