@@ -8,6 +8,9 @@ var path = require("path");
 var fs = require("fs");
 var logger = require("./log").get_logger({ module: "fontdump" });
 
+function hash(data) {
+    return require("crypto").createHash("md5").update(data).digest("hex");
+}
 
 var FontSource = function(font, source, extension, format) {
     this.font = font;
@@ -19,8 +22,9 @@ var FontSource = function(font, source, extension, format) {
 FontSource.prototype = {
     get_filename: function() {
         return sprintf(
-            "%s_%s_%s.%s",
-            this.font.family.name, this.font.weight, this.font.style, this.extension
+            "%s_%s_%s_%s.%s",
+            this.font.family.name, this.font.weight, this.font.style,
+            this.font.unicode_range ? hash(this.font.unicode_range) : "default", this.extension
         ).replace(/\s+/, "").toLowerCase();
     },
     get_web_filename: function() {
@@ -35,10 +39,11 @@ FontSource.prototype = {
     }
 };
 
-var Font = function(family, weight, style) {
+var Font = function(family, weight, style, unicode_range) {
     this.family = family;
     this.weight = weight;
     this.style = style;
+    this.unicode_range = unicode_range;
     this.sources = {};
 };
 
@@ -70,8 +75,8 @@ var FontFamily = function(name) {
     this.name = name;
     this.fonts = {};
 
-    this._create_font_id = function(weight, style) {
-        return sprintf("%s_%s", weight, style);
+    this._create_font_id = function(weight, style, unicode_range) {
+        return sprintf("%s_%s_%s", weight, style, hash(unicode_range || ""));
     }
 };
 
@@ -79,11 +84,11 @@ FontFamily.prototype = {
     get_fonts: function() {
         return _.values(this.fonts);
     },
-    with_font: function(weight, style) {
-        var id = this._create_font_id(weight, style);
+    with_font: function(weight, style, unicode_range) {
+        var id = this._create_font_id(weight, style, unicode_range);
 
         if(typeof this.fonts[id] === "undefined") {
-            this.fonts[id] = new Font(this, weight, style);
+            this.fonts[id] = new Font(this, weight, style, unicode_range);
         }
 
         return this.fonts[id];
@@ -169,6 +174,8 @@ var FontLoader = function(endpoint, target_directory) {
             var source = source_matches[2] ? source_matches[2] : source_matches[4];
             var format = source_matches[2] ? source_matches[3] : "embedded-opentype";
             var extension = Font.FORMATS[format];
+            var unicode_range = Object.prototype.hasOwnProperty.call(declarations, "unicode-range")
+                ? declarations["unicode-range"]["value"] : null;
             var family = declarations["font-family"]["value"];
             family = family.indexOf("'") === 0 ? family.slice(1, -1) : family;
 
@@ -176,7 +183,7 @@ var FontLoader = function(endpoint, target_directory) {
 
             collection
                 .with_font_family(family)
-                .with_font(weight, style)
+                .with_font(weight, style, unicode_range)
                 .add_source(source, extension, format);
         });
     };
@@ -290,9 +297,14 @@ FontFaceRenderer = function(endpoint) {
         this._add_declaration(rule.declarations, "font-style", font.style);
         this._add_source_set(rule.declarations, font);
 
+        if(font.unicode_range) {
+            this._add_declaration(rule.declarations, "unicode-range", font.unicode_range);
+        }
+
         logger.debug(sprintf(
-            "adding font-face rule for font-family %s with weight %s and style %s",
-            font.family.name, font.weight, font.style
+            "adding font-face rule for font-family %s with weight %s and style %s%s",
+            font.family.name, font.weight, font.style, font.unicode_range ?
+                " and unicode range " + font.unicode_range : ""
         ));
 
         ruleset.push(rule);
