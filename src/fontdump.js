@@ -158,6 +158,8 @@ var FontLoader = function(endpoint, target_directory) {
 
     this._parse_stylesheet = function(collection, stylesheet) {
         css.parse(stylesheet).stylesheet.rules.forEach(function (rule) {
+            if(rule.type !== "font-face") return;
+
             var declarations = _.indexBy(rule.declarations, "property");
             var weight = declarations["font-weight"]["value"];
             var style = declarations["font-style"]["value"];
