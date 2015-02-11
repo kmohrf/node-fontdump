@@ -130,10 +130,11 @@ var FontLoader = function(endpoint, target_directory) {
     this.endpoint = endpoint;
     this.target_directory = target_directory;
 
-    this._create_request = function(endpoint, ua) {
+    this._create_request = function(endpoint, ua, encoding) {
         request = rp({
             url: endpoint,
-            headers: { "User-Agent": ua }
+            encoding: typeof encoding === "undefined" ? "utf8" : null,
+            headers: { "User-Agent": ua || FontLoader.AGENTS.woff }
         }).promise();
 
         request.then(function() {
@@ -199,7 +200,7 @@ var FontLoader = function(endpoint, target_directory) {
         var target_file = path.join(this.target_directory, filename);
 
         return this
-            ._create_request(font_source)
+            ._create_request(font_source, null, null)
             .then(this._write_font.bind(this, target_file));
     };
 
