@@ -4,11 +4,14 @@
   "description": "cache font files locally and generate a stylesheet for it",
   "main": "./src/fontdump.js",
   "bin": {
-    "fontdump": "./fontdump-cli.js"
+    "fontdump": "./bin/fontdump.js"
   },
   "dependencies": {
+    "assert": "^1.4.1",
+    "commander": "^2.9.0",
     "css": "^2.1.0",
     "es6-promise": "^3.2.1",
+    "is-url": "^1.2.2",
     "lodash": "^4.13.1",
     "request-promise": "^4.0.2",
     "winston": "^2.2.0"
