@@ -1,6 +1,6 @@
 {
   "name": "node-fontdump",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "cache font files locally and generate a stylesheet for it",
   "main": "./src/fontdump.js",
   "bin": {
