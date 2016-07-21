@@ -339,6 +339,7 @@ FontFaceRenderer.prototype = {
 };
 
 module.exports = {
+    logger: logger,
     dump: function(config) {
         return new Promise(function(resolve, reject) {
             if(!_.has(config, "url")) {
