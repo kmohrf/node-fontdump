@@ -2,7 +2,7 @@
   "name": "node-fontdump",
   "version": "1.1.0",
   "description": "cache font files locally and generate a stylesheet for it",
-  "main": "./src/fontdump.js",
+  "main": "./dist/fontdump.js",
   "bin": {
     "fontdump": "./bin/fontdump.js"
   },
@@ -18,7 +18,10 @@
     "winston": "^2.2.0"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "true",
+    "rollup": "rollup -c .rollup.js",
+    "build": "npm run test && npm run rollup",
+    "prepublish": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -38,5 +41,11 @@
   "bugs": {
     "url": "https://github.com/FarbDev/node-fontdump/issues"
   },
-  "homepage": "https://github.com/FarbDev/node-fontdump"
+  "homepage": "https://github.com/FarbDev/node-fontdump",
+  "devDependencies": {
+    "babel-preset-es2015-rollup": "^3.0.0",
+    "rollup": "^0.41.4",
+    "rollup-plugin-babel": "^2.7.1",
+    "rollup-plugin-json": "^2.1.0"
+  }
 }
