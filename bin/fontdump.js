@@ -10,7 +10,7 @@ const is_url = require("is-url");
 const program = require("commander");
 
 const pkg = require("../package.json");
-const fontdump = require("../src/fontdump");
+const fontdump = require("../dist/fontdump");
 
 // configure cli
 program
