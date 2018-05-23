@@ -10,7 +10,7 @@
     "assert": "^1.4.1",
     "commander": "^2.9.0",
     "css": "^2.1.0",
-    "es6-promise": "^3.2.1",
+    "es6-promise": "^4.2.4",
     "is-url": "^1.2.2",
     "lodash": "^4.13.1",
     "request": "^2.73.0",
@@ -43,9 +43,10 @@
   },
   "homepage": "https://github.com/FarbDev/node-fontdump",
   "devDependencies": {
+    "babel-core": "^6.26.3",
     "babel-preset-es2015-rollup": "^3.0.0",
-    "rollup": "^0.41.4",
-    "rollup-plugin-babel": "^2.7.1",
-    "rollup-plugin-json": "^2.1.0"
+    "rollup": "^0.59.2",
+    "rollup-plugin-babel": "^3.0.4",
+    "rollup-plugin-json": "^3.0.0"
   }
 }
