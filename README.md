@@ -41,9 +41,11 @@ There are a few options to configure fontdumps behaviour. Run `bin/fontdump.js -
 
 ### API
 
-You may also use the fontdump API. The fontdump module exposes a single function called `dump` that returns a Promise and accepts a config object.
+You may also use the fontdump API. The fontdump module exposes a function that returns a Promise and accepts a config object.
 
 You must pass the following options:
+
+`logger`: a logger instance (fontdump itself uses winston, but you could probably just  pass `console`)
 
 `url`: the URL to the stylesheet
 
