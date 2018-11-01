@@ -1,11 +1,12 @@
 const crypto = require('crypto')
-const path = require('path')
 const fs = require('fs')
+const path = require('path')
 
-const Promise = require('es6-promise').Promise
-const request = require('request-promise')
 const _ = require('lodash')
 const css = require('css')
+const mkdirp = require('mkdirp').sync
+const Promise = require('es6-promise').Promise
+const request = require('request-promise')
 
 let logger
 
@@ -358,6 +359,12 @@ module.exports = function (config) {
 
     const loader = new FontLoader(config.url, config.targetDirectory)
     const renderer = new FontFaceRenderer(config.webDirectory || '')
+
+    try {
+      mkdirp(config.targetDirectory)
+    } catch (err) {
+      logger.error('unable to create target directory', err)
+    }
 
     loader.requestAll().then(
       function (collection) {

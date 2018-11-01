@@ -2,8 +2,6 @@
 
 'use strict'
 
-const fs = require('fs')
-
 const winston = require('winston')
 const assert = require('assert')
 const isUrl = require('is-url')
@@ -48,7 +46,6 @@ process.on('unhandledRejection', function (err) {
 
 // assert cli options
 assert(isUrl(program.args[0]), 'url to font is required first argument')
-assert(fs.lstatSync(program.targetDirectory).isDirectory(), 'target directory must be a directory')
 
 // start the machines :)
 fontdump({
