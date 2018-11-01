@@ -22,17 +22,27 @@ program
   .parse(process.argv)
 
 // configure logger
-winston.cli()
-winston.level = ['error', 'warn', 'info', 'debug'][Math.min(program.verbose || 0, 3)]
+const logger = winston.createLogger({
+  format: winston.format.combine(
+    winston.format.label({ label: pkg.name }),
+    winston.format.timestamp(),
+    winston.format.colorize(),
+    winston.format.printf(function (logEntry) {
+      return `${logEntry.level}: ${logEntry.message}`
+    })
+  ),
+  level: ['error', 'warn', 'info', 'debug'][Math.min(program.verbose || 0, 3)],
+  transports: [new winston.transports.Console()]
+})
 
 // add error handling
 process.on('exit', function () { process.reallyExit(process.exitCode) })
 process.on('uncaughtException', function (err) {
-  winston.error(err.message)
+  logger.error(err.message)
   process.exitCode = 1
 })
 process.on('unhandledRejection', function (err) {
-  winston.error(err.message)
+  logger.error(err.message)
   process.exitCode = 1
 })
 
@@ -41,8 +51,9 @@ assert(isUrl(program.args[0]), 'url to font is required first argument')
 assert(fs.lstatSync(program.targetDirectory).isDirectory(), 'target directory must be a directory')
 
 // start the machines :)
-fontdump.dump({
+fontdump({
+  logger: logger,
   url: program.args[0],
   targetDirectory: program.targetDirectory,
   webDirectory: program.webDirectory
-}).catch((err) => winston.error(err.message))
+}).catch((err) => logger.error(err.message))

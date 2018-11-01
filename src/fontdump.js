@@ -4,15 +4,16 @@ const fs = require('fs')
 
 const Promise = require('es6-promise').Promise
 const request = require('request-promise')
-const logger = require('winston')
 const _ = require('lodash')
 const css = require('css')
+
+let logger
 
 function hash (data) {
   return crypto.createHash('md5').update(data).digest('hex')
 }
 
-function stripQuotes (string, quotationStyle = "'") {
+function stripQuotes (string, quotationStyle = '\'') {
   if (string.indexOf(quotationStyle) === 0 && string.lastIndexOf(quotationStyle) === string.length - 1) {
     return string.slice(1, -1)
   }
@@ -295,7 +296,7 @@ const FontFaceRenderer = function (endpoint) {
       declarations: []
     }
 
-    this._addDeclaration(rule.declarations, 'font-family', "'" + font.family.name + "'")
+    this._addDeclaration(rule.declarations, 'font-family', '\'' + font.family.name + '\'')
     this._addDeclaration(rule.declarations, 'font-weight', font.weight)
     this._addDeclaration(rule.declarations, 'font-style', font.style)
     this._addSourceSet(rule.declarations, font)
@@ -305,8 +306,7 @@ const FontFaceRenderer = function (endpoint) {
     }
 
     logger.debug(
-      `adding font-face rule for font-family ${font.family.name} with weight ${font.weight} and 
-            style ${font.style}${font.unicodeRange ? ' and unicode range ' + font.unicodeRange : ''}`
+      `adding font-face rule for font-family ${font.family.name} with weight ${font.weight} and style ${font.style}${font.unicodeRange ? ' and unicode range ' + font.unicodeRange : ''}`
     )
 
     ruleset.push(rule)
@@ -336,39 +336,42 @@ FontFaceRenderer.prototype = {
   }
 }
 
-module.exports = {
-  logger: logger,
-  dump: function (config) {
-    return new Promise(function (resolve, reject) {
-      if (!_.has(config, 'url')) {
-        throw new Error('url is mandatory')
+module.exports = function (config) {
+  return new Promise(function (resolve, reject) {
+    if (!_.has(config, 'url')) {
+      throw new Error('url is mandatory')
+    }
+
+    if (!_.has(config, 'targetDirectory')) {
+      throw new Error('target directory is mandatory')
+    }
+
+    if (!_.has(config, 'cssFile')) {
+      config.cssFile = 'fonts.css'
+    }
+
+    if (!_.has(config, 'logger')) {
+      throw new Error('please provide a logger instance')
+    } else {
+      logger = config.logger
+    }
+
+    const loader = new FontLoader(config.url, config.targetDirectory)
+    const renderer = new FontFaceRenderer(config.webDirectory || '')
+
+    loader.requestAll().then(
+      function (collection) {
+        const css = renderer.render(collection)
+        fs.writeFileSync(path.join(config.targetDirectory, config.cssFile), css)
+        resolve({
+          css: css,
+          fonts: collection
+        })
+      },
+      function (err) {
+        logger.error('could not download fonts', err)
+        reject(err)
       }
-
-      if (!_.has(config, 'targetDirectory')) {
-        throw new Error('target directory is mandatory')
-      }
-
-      if (!_.has(config, 'cssFile')) {
-        config.cssFile = 'fonts.css'
-      }
-
-      const loader = new FontLoader(config.url, config.targetDirectory)
-      const renderer = new FontFaceRenderer(config.webDirectory || '')
-
-      loader.requestAll().then(
-        function (collection) {
-          const css = renderer.render(collection)
-          fs.writeFileSync(path.join(config.targetDirectory, config.cssFile), css)
-          resolve({
-            css: css,
-            fonts: collection
-          })
-        },
-        function (err) {
-          logger.error('could not download fonts', err)
-          reject(err)
-        }
-      )
-    })
-  }
+    )
+  })
 }
