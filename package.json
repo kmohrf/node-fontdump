@@ -18,7 +18,7 @@
     "winston": "^2.2.0"
   },
   "scripts": {
-    "test": "true",
+    "test": "standard",
     "rollup": "rollup -c .rollup.js",
     "build": "npm run test && npm run rollup",
     "prepublish": "npm run build"
@@ -47,6 +47,7 @@
     "babel-preset-es2015-rollup": "^3.0.0",
     "rollup": "^0.59.2",
     "rollup-plugin-babel": "^3.0.4",
-    "rollup-plugin-json": "^3.0.0"
+    "rollup-plugin-json": "^3.0.0",
+    "standard": "^12.0.1"
   }
 }

@@ -47,9 +47,9 @@ You must pass the following options:
 
 `url`: the URL to the stylesheet
 
-`target_directory`: the directory font and css files should be saved to
+`targetDirectory`: the directory font and css files should be saved to
 
-`web_directory`: the path that should be prepended to the font file URL.
+`webDirectory`: the path that should be prepended to the font file URL.
 
 
 
