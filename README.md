@@ -55,4 +55,4 @@ You must pass the following options:
 
 ## License
 
-Licsensed under the terms of the ISC license. See the `LICENSE` file.
+Licensed under the terms of the ISC license. See the `LICENSE` file.
