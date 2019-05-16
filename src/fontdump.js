@@ -306,7 +306,7 @@ const FontFaceRenderer = function (endpoint) {
       declarations: []
     }
 
-    this._addDeclaration(rule.declarations, 'font-family', '\'' + font.family.name + '\'')
+    this._addDeclaration(rule.declarations, 'font-family', `'${font.family.name}'`)
     this._addDeclaration(rule.declarations, 'font-weight', font.weight)
     this._addDeclaration(rule.declarations, 'font-style', font.style)
     this._addSourceSet(rule.declarations, font)
