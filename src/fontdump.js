@@ -22,6 +22,15 @@ function stripQuotes (string, quotationStyle = '\'') {
   return string
 }
 
+function createBaseLogger () {
+  function noop () {}
+
+  return Object.assign({}, console, {
+    debug: noop,
+    info: noop
+  })
+}
+
 const FontSource = function (font, source, extension, format) {
   this.font = font
   this.source = source
@@ -352,7 +361,7 @@ module.exports = function (config) {
     }
 
     if (!_.has(config, 'logger')) {
-      throw new Error('please provide a logger instance')
+      logger = createBaseLogger()
     } else {
       logger = config.logger
     }
