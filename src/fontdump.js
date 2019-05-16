@@ -56,11 +56,12 @@ FontSource.prototype = {
   }
 }
 
-const Font = function (family, weight, style, unicodeRange) {
+const Font = function (family, weight, style, unicodeRange, display) {
   this.family = family
   this.weight = weight
   this.style = style
   this.unicodeRange = unicodeRange
+  this.display = display
   this.sources = {}
 }
 
@@ -101,11 +102,11 @@ FontFamily.prototype = {
   getFonts: function () {
     return _.values(this.fonts)
   },
-  withFont: function (weight, style, unicodeRange) {
+  withFont: function (weight, style, unicodeRange, display) {
     const id = this._createFontId(weight, style, unicodeRange)
 
     if (typeof this.fonts[id] === 'undefined') {
-      this.fonts[id] = new Font(this, weight, style, unicodeRange)
+      this.fonts[id] = new Font(this, weight, style, unicodeRange, display)
     }
 
     return this.fonts[id]
@@ -192,13 +193,14 @@ const FontLoader = function (endpoint, targetDirectory) {
       const format = sourceMatches[2] ? sourceMatches[3] : 'embedded-opentype'
       const extension = Font.FORMATS[format]
       const unicodeRange = _.has(declarations, 'unicode-range') ? declarations['unicode-range']['value'] : null
+      const display = _.has(declarations, 'font-display') ? declarations['font-display']['value'] : null
       const family = stripQuotes(declarations['font-family']['value'])
 
       logger.debug(`adding font ${family} with weight ${weight} and style ${style}`)
 
       collection
         .withFontFamily(family)
-        .withFont(weight, style, unicodeRange)
+        .withFont(weight, style, unicodeRange, display)
         .addSource(source, extension, format)
     })
   }
@@ -309,6 +311,11 @@ const FontFaceRenderer = function (endpoint) {
     this._addDeclaration(rule.declarations, 'font-family', `'${font.family.name}'`)
     this._addDeclaration(rule.declarations, 'font-weight', font.weight)
     this._addDeclaration(rule.declarations, 'font-style', font.style)
+
+    if (font.display) {
+      this._addDeclaration(rule.declarations, 'font-display', font.display)
+    }
+
     this._addSourceSet(rule.declarations, font)
 
     if (font.unicodeRange) {

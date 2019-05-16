@@ -3,7 +3,7 @@
 fontdump is a node module and command line program that processes stylesheets for @font-face rules,
 downloads the fonts and saves them locally. Stylesheets are requested with multiple User-Agent
 strings in order to collect and download all available font formats including `eot`, `ttf`, `svg`, `woff` and `woff2`.
-The resulting fontdump stylesheet uses the good ol' ['bulletproof'](https://calendar.perfplanet.com/2016/no-font-face-bulletproof-syntax/) @font-face declaration syntax and includes unicode ranges if provided by the source. 
+The resulting fontdump stylesheet uses the good ol' ['bulletproof'](https://calendar.perfplanet.com/2016/no-font-face-bulletproof-syntax/) @font-face declaration syntax and includes `unicode-range` and `font-display` properties if provided by the source. 
 
 fontdump is primarily written for and used with [Google Fonts](https://fonts.google.com/).
 
@@ -37,7 +37,7 @@ Just pass a stylesheet URL:
 bin/fontdump.js "http://fonts.googleapis.com/css?family=Roboto:300"
 ```
 
-There are a few options to configure fontdumps behaviour. Run `bin/fontdump.js --help` to see them. You can change the output directory, add a base path and increase the verbosity level in case of errors.
+There are a few options to configure the behaviour of fontdump. Run `bin/fontdump.js --help` to see them. You can change the output directory, add a base path and increase the verbosity level in case of errors.
 
 ### API
 
