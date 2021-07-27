@@ -29,7 +29,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/FarbDev/node-fontdump.git"
+    "url": "https://github.com/kmohrf/node-fontdump.git"
   },
   "keywords": [
     "google",
@@ -43,9 +43,9 @@
   "author": "Konrad Mohrfeldt <konrad.mohrfeldt@farbdev.org> (http://konradmohrfeldt.farbdev.org)",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/FarbDev/node-fontdump/issues"
+    "url": "https://github.com/kmohrf/node-fontdump/issues"
   },
-  "homepage": "https://github.com/FarbDev/node-fontdump",
+  "homepage": "https://github.com/kmohrf/node-fontdump",
   "devDependencies": {
     "@babel/core": "^7.4.4",
     "@babel/preset-env": "^7.4.4",
