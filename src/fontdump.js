@@ -147,10 +147,10 @@ FontFamilyCollection.prototype = {
   }
 }
 
-const FontLoader = function (endpoint, targetDirectory) {
+const FontLoader = function (endpoint, targetDirectory, agents) {
   const self = this
 
-  this.agents = _.clone(FontLoader.AGENTS)
+  this.agents = agents
   this.endpoint = endpoint
   this.targetDirectory = targetDirectory
 
@@ -373,7 +373,11 @@ module.exports = function (config) {
       logger = config.logger
     }
 
-    const loader = new FontLoader(config.url, config.targetDirectory)
+    const agents = config.includeLegacyFormats
+      ? _.clone(FontLoader.AGENTS)
+      : _.pick(FontLoader.AGENTS, ['woff2', 'woff'])
+
+    const loader = new FontLoader(config.url, config.targetDirectory, agents)
     const renderer = new FontFaceRenderer(config.webDirectory || '')
 
     try {

@@ -17,6 +17,7 @@ program
   .option('-v, --verbose', 'verbosity level. repeatable', (v, total) => total + 1, 0)
   .option('-t, --target-directory [dir]', 'folder to save font files and css to', process.cwd())
   .option('-w, --web-directory [dir]', 'path prepended to font filenames in css src declarations', '')
+  .option('-l, --include-legacy-formats', 'include legacy formats like eot, svg and ttf fonts', false)
   .parse(process.argv)
 
 // configure logger
@@ -51,6 +52,7 @@ assert(isUrl(program.args[0]), 'url to font is required first argument')
 fontdump({
   logger: logger,
   url: program.args[0],
+  includeLegacyFormats: program.includeLegacyFormats,
   targetDirectory: program.targetDirectory,
   webDirectory: program.webDirectory
 }).catch((err) => logger.error(err.message))

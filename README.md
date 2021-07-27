@@ -1,9 +1,10 @@
 # fontdump
 
 fontdump is a node module and command line program that processes stylesheets for @font-face rules,
-downloads the fonts and saves them locally. Stylesheets are requested with multiple User-Agent
-strings in order to collect and download all available font formats including `eot`, `ttf`, `svg`, `woff` and `woff2`.
-The resulting fontdump stylesheet uses the good ol' ['bulletproof'](https://calendar.perfplanet.com/2016/no-font-face-bulletproof-syntax/) @font-face declaration syntax and includes `unicode-range` and `font-display` properties if provided by the source. 
+downloads the fonts and saves them locally.
+The resulting fontdump stylesheet uses the good ol' ['bulletproof'](https://calendar.perfplanet.com/2016/no-font-face-bulletproof-syntax/) @font-face declaration syntax and includes `unicode-range` and `font-display` properties if provided by the source.
+
+Since version 3.0 only `woff` and `woff2` files are downloaded by default. If you want to download legacy web font formats like `eot`, `ttf`, or `svg` pass the `--include-legacy-formats` option.
 
 fontdump is primarily written for and used with [Google Fonts](https://fonts.google.com/).
 
@@ -54,6 +55,8 @@ You must pass the following options:
 `targetDirectory`: the directory font and css files should be saved to
 
 `webDirectory`: the path that should be prepended to the font file URL.
+
+`includeLegacyFormats`: when truthy fontdump will download legacy formats like EOT, SVG, and TTF.
 
 
 
