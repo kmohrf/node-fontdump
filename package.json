@@ -2,29 +2,27 @@
   "name": "node-fontdump",
   "version": "3.0.0",
   "description": "cache font files locally and generate a stylesheet for it",
-  "main": "./dist/fontdump.js",
-  "bin": {
-    "fontdump": "./bin/fontdump.js"
+  "type": "module",
+  "exports": "./dist/fontdump.mjs",
+  "engines": {
+    "node": ">=18"
   },
-  "browserslist": [
-    "maintained node versions"
-  ],
+  "bin": {
+    "fontdump": "./bin/fontdump.mjs"
+  },
   "dependencies": {
-    "assert": "^1.5.0",
-    "commander": "^2.20.0",
-    "css": "^2.1.0",
-    "es6-promise": "^4.2.6",
-    "is-url": "^1.2.2",
-    "lodash": "^4.13.1",
-    "mkdirp": "^0.5.1",
-    "request": "^2.73.0",
-    "request-promise": "^4.2.4",
-    "winston": "^3.2.1"
+    "assert": "^2.0.0",
+    "commander": "^11.0.0",
+    "css": "^3.0.0",
+    "is-url": "^1.2.4",
+    "lodash": "^4.17.21",
+    "mkdirp": "^3.0.1",
+    "node-fetch": "^3.3.2",
+    "winston": "^3.10.0"
   },
   "scripts": {
     "test": "standard",
-    "rollup": "rollup -c .rollup.js",
-    "build": "npm run test && npm run rollup",
+    "build": "npm run test",
     "prepublish": "npm run build"
   },
   "repository": {
@@ -47,11 +45,6 @@
   },
   "homepage": "https://github.com/kmohrf/node-fontdump",
   "devDependencies": {
-    "@babel/core": "^7.4.4",
-    "@babel/preset-env": "^7.4.4",
-    "rollup": "^0.66.6",
-    "rollup-plugin-babel": "^4.3.2",
-    "rollup-plugin-json": "^3.0.0",
-    "standard": "^12.0.1"
+    "standard": "^17.1.0"
   }
 }

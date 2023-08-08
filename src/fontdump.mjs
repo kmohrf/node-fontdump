@@ -1,17 +1,16 @@
-const crypto = require('crypto')
-const fs = require('fs')
-const path = require('path')
+import { createHash } from 'node:crypto'
+import { writeFile, writeFileSync } from 'node:fs'
+import { join } from 'node:path'
 
-const _ = require('lodash')
-const css = require('css')
-const mkdirp = require('mkdirp').sync
-const Promise = require('es6-promise').Promise
-const request = require('request-promise')
+import _ from 'lodash'
+import css from 'css'
+import { mkdirp } from 'mkdirp'
+import fetch from 'node-fetch'
 
 let logger
 
 function hash (data) {
-  return crypto.createHash('md5').update(data).digest('hex')
+  return createHash('md5').update(data).digest('hex')
 }
 
 function stripQuotes (string, quotationStyle = '\'') {
@@ -82,11 +81,11 @@ Font.prototype = {
 }
 
 Font.FORMATS = {
-  'woff2': 'woff2',
-  'woff': 'woff',
-  'truetype': 'ttf',
+  woff2: 'woff2',
+  woff: 'woff',
+  truetype: 'ttf',
   'embedded-opentype': 'eot',
-  'svg': 'svg'
+  svg: 'svg'
 }
 
 const FontFamily = function (name) {
@@ -154,22 +153,24 @@ const FontLoader = function (endpoint, targetDirectory, agents) {
   this.endpoint = endpoint
   this.targetDirectory = targetDirectory
 
-  this._createRequest = function (endpoint, ua, encoding) {
-    const req = request({
-      url: endpoint,
-      encoding: typeof encoding === 'undefined' ? 'utf8' : null,
+  this._createRequest = async function (endpoint, ua, encoding) {
+    const res = await fetch(endpoint, {
       headers: { 'User-Agent': ua || FontLoader.AGENTS.woff }
     })
 
-    req.then(function () {
-      // on success
+    if (res.ok) {
       logger.debug(`successfully downloaded '${endpoint}' with ua '${ua}'`)
-    }, function (err) {
-      // on error
-      logger.error(`error while downloading '${endpoint}' with ua '${ua}'`, err)
-    })
+    } else {
+      logger.error(`error while downloading '${endpoint}' with ua '${ua}'`, res.statusText)
+    }
 
-    return req
+
+    if (typeof encoding === 'undefined') {
+      return res.text()
+    } else {
+      const buffer = await res.arrayBuffer()
+      return new Uint8Array(buffer)
+    }
   }
 
   this._loadStylesheets = function () {
@@ -185,16 +186,16 @@ const FontLoader = function (endpoint, targetDirectory, agents) {
       if (rule.type !== 'font-face') return
 
       const declarations = _.keyBy(rule.declarations, 'property')
-      const weight = declarations['font-weight']['value']
-      const style = declarations['font-style']['value']
-      const sourceMatches = declarations['src']['value']
+      const weight = declarations['font-weight'].value
+      const style = declarations['font-style'].value
+      const sourceMatches = declarations.src.value
         .match(/(url\((http.+)\) format\('(.+)'\)|url\((http.+.eot)\))/)
       const source = sourceMatches[2] ? sourceMatches[2] : sourceMatches[4]
       const format = sourceMatches[2] ? sourceMatches[3] : 'embedded-opentype'
       const extension = Font.FORMATS[format]
-      const unicodeRange = _.has(declarations, 'unicode-range') ? declarations['unicode-range']['value'] : null
-      const display = _.has(declarations, 'font-display') ? declarations['font-display']['value'] : null
-      const family = stripQuotes(declarations['font-family']['value'])
+      const unicodeRange = _.has(declarations, 'unicode-range') ? declarations['unicode-range'].value : null
+      const display = _.has(declarations, 'font-display') ? declarations['font-display'].value : null
+      const family = stripQuotes(declarations['font-family'].value)
 
       logger.debug(`adding font ${family} with weight ${weight} and style ${style}`)
 
@@ -216,7 +217,7 @@ const FontLoader = function (endpoint, targetDirectory, agents) {
 
   this._writeFont = function (targetFile, data) {
     return new Promise(function (resolve, reject) {
-      fs.writeFile(targetFile, data, function (err) {
+      writeFile(targetFile, data, function (err) {
         if (err) reject(err)
         else resolve(targetFile)
       })
@@ -224,7 +225,7 @@ const FontLoader = function (endpoint, targetDirectory, agents) {
   }
 
   this._syncFont = function (fontSource, filename) {
-    const targetFile = path.join(this.targetDirectory, filename)
+    const targetFile = join(this.targetDirectory, filename)
 
     return this
       ._createRequest(fontSource, null, null)
@@ -263,11 +264,11 @@ FontLoader.prototype = {
 }
 
 FontLoader.AGENTS = {
-  'woff2': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.106 Safari/537.36',
-  'woff': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.101 Safari/537.36',
-  'ttf': 'Mozilla/5.0 (Linux; U; Android 2.2; en-us; DROID2 GLOBAL Build/S273) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1',
-  'svg': 'Mozilla/5.0 (iPad; U; CPU OS 3_2 like Mac OS X; en-us) AppleWebKit/531.21.10 (KHTML, like Gecko) Version/4.0.4 Mobile/7B334b Safari/531.21.10',
-  'eot': 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; .NET CLR 1.1.4322)'
+  woff2: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.106 Safari/537.36',
+  woff: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.101 Safari/537.36',
+  ttf: 'Mozilla/5.0 (Linux; U; Android 2.2; en-us; DROID2 GLOBAL Build/S273) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1',
+  svg: 'Mozilla/5.0 (iPad; U; CPU OS 3_2 like Mac OS X; en-us) AppleWebKit/531.21.10 (KHTML, like Gecko) Version/4.0.4 Mobile/7B334b Safari/531.21.10',
+  eot: 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; .NET CLR 1.1.4322)'
 }
 
 const FontFaceRenderer = function (endpoint) {
@@ -297,8 +298,8 @@ const FontFaceRenderer = function (endpoint) {
   this._addDeclaration = function (declarationSet, property, value) {
     declarationSet.push({
       type: 'declaration',
-      property: property,
-      value: value
+      property,
+      value
     })
   }
 
@@ -353,7 +354,7 @@ FontFaceRenderer.prototype = {
   }
 }
 
-module.exports = function (config) {
+export default function (config) {
   return new Promise(function (resolve, reject) {
     if (!_.has(config, 'url')) {
       throw new Error('url is mandatory')
@@ -381,17 +382,18 @@ module.exports = function (config) {
     const renderer = new FontFaceRenderer(config.webDirectory || '')
 
     try {
-      mkdirp(config.targetDirectory)
+      mkdirp.sync(config.targetDirectory)
     } catch (err) {
       logger.error('unable to create target directory', err)
+      return
     }
 
     loader.requestAll().then(
       function (collection) {
         const css = renderer.render(collection)
-        fs.writeFileSync(path.join(config.targetDirectory, config.cssFile), css)
+        writeFileSync(join(config.targetDirectory, config.cssFile), css)
         resolve({
-          css: css,
+          css,
           fonts: collection
         })
       },

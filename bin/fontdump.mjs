@@ -1,14 +1,14 @@
-#!/usr/bin/env node
+#!/usr/bin/env -S node --no-warnings
 
-'use strict'
+import fontdump from '../src/fontdump.mjs'
+import winston from 'winston'
+import assert from 'assert'
+import isUrl from 'is-url'
+import { Command } from 'commander'
 
-const winston = require('winston')
-const assert = require('assert')
-const isUrl = require('is-url')
-const program = require('commander')
+import pkg from '../package.json' assert { type: 'json' }
 
-const pkg = require('../package.json')
-const fontdump = require('../dist/fontdump')
+const program = new Command('fontdump')
 
 // configure cli
 program
@@ -49,10 +49,11 @@ process.on('unhandledRejection', function (err) {
 assert(isUrl(program.args[0]), 'url to font is required first argument')
 
 // start the machines :)
+const options = program.opts()
 fontdump({
-  logger: logger,
+  logger,
   url: program.args[0],
-  includeLegacyFormats: program.includeLegacyFormats,
-  targetDirectory: program.targetDirectory,
-  webDirectory: program.webDirectory
+  includeLegacyFormats: options.includeLegacyFormats,
+  targetDirectory: options.targetDirectory,
+  webDirectory: options.webDirectory
 }).catch((err) => logger.error(err.message))
