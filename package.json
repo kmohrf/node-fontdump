@@ -38,7 +38,7 @@
     "cache",
     "css"
   ],
-  "author": "Konrad Mohrfeldt <konrad.mohrfeldt@farbdev.org> (http://konradmohrfeldt.farbdev.org)",
+  "author": "Konrad Mohrfeldt <konrad.mohrfeldt@farbdev.org> (https://konradmohrfeldt.farbdev.org)",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/kmohrf/node-fontdump/issues"
